@@ -32,6 +32,7 @@ port = 5000
 motorNum = 10
 doAutoDrive = False
 average_wavelength = 1010
+steps_to_drive = 0
 
 #moving average without padding
 def movingaverage(interval, window_size):
@@ -52,7 +53,7 @@ class Worker(QObject):
         print("worker run started")
         while self.running:
             self.spectromter.integration_time_micros(integrationTime)
-            time.sleep(0.05)  #if there is no sleep, it will crash if it is not triggered
+            time.sleep(0.85)  #if there is no sleep, it will crash if it is not triggered
             wavelengths_spec = self.spectromter.wavelengths()[30:] #cut the first 30 values because the spectrometer gives out a weird artifacat there
             intensities_spec = self.spectromter.intensities()[30:]
             self.data_fetched.emit(wavelengths_spec, intensities_spec)
@@ -71,6 +72,18 @@ class MplCanvas(FigureCanvas):
         self.wavelengths  = []
         self.intensities = []
         self.drift_dist = 0 # parameter to measure the drift
+        self.host = host
+        self.port = port
+        self.motorNum = motorNum
+        # self.motorPos = 0
+        
+        try:
+            self.sms = FSUBahrmannSMS(host, port)
+            self.sms.setStepTypeStr(1, "1/4")
+            # self.motorPos = self.sms.getPosition(self.motorNum)
+            # self.sms.setAcc
+        except:
+            print("no Motor found in canvas")
 
     def update_plot(self, wavelengths, intensities):
         self.ax.relim()
@@ -80,7 +93,8 @@ class MplCanvas(FigureCanvas):
         if ContSave:
             df = pd.DataFrame()
             df.insert(0,"wavelength",wavelengths)
-            df.insert(0,"intensity",intensities)
+            df.insert(1,"intensity",intensities)
+            df.insert(2,"motor_pos", self.sms.getStateOne(10)[0].counterstr[1:-2])
             df.to_csv(savePath+filePrefix + str(datetime.now()).replace(" ", "").replace(":", "-")+".dat", sep="\t")
         if doAverage:
             intensities = movingaverage(intensities, numAverage)
@@ -92,15 +106,18 @@ class MplCanvas(FigureCanvas):
             if not doAverage:
                 ints2 = movingaverage(ints2, numAverage)
             wavelength_max = wavelengths[np.argmax(ints2)]
-            print(wavelength_max)
-            self.drift_dist += wavelength_max - average_wavelength
-            print(self.drift_dist)
+            print("max wavelength = ",wavelength_max)
+            #quadratic scaling so that fluctuations near the average dont do much
+            self.drift_dist += np.sign(wavelength_max - average_wavelength) * (wavelength_max - average_wavelength)**2
+            print("drift dist = ", self.drift_dist)
             
-            if self.drift_dist < -150:
+            if self.drift_dist < -2000:
                 print("hochfahren")
+                self.drive_steps(1)
                 self.drift_dist = 0
-            if self.drift_dist > 150:
+            if self.drift_dist > 2000:
                 print("runterfahren")
+                self.drive_steps(-1)
                 self.drift_dist = 0
                 
             # print("autodrive")
@@ -111,6 +128,18 @@ class MplCanvas(FigureCanvas):
         self.intensities = intensities
         self.line.set_data(wavelengths, intensities)
         self.draw()    
+    
+    #functions for motor movement
+    def drive_steps(self, steps):
+        # global steps_to_drive
+        driveTo = steps + float(self.sms.getStateOne(10)[0].counterstr)
+        self.sms.StartOne(self.motorNum, driveTo)
+    
+    # def update_positionDisplay(self):
+    #     self.positionDisplay.setText(str(self.canvas.motorPos))
+    
+    def StopMotor(self):
+        self.sms.StopOne(self.motorNum)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -122,22 +151,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.threadRef = None
         self.appRef = None
         self.setWindowTitle("Spectrometer Data Test")
-        self.host = host
-        self.port = port
-        self.motorNum = motorNum
-        self.motorPos = 0
         
-        try:
-            self.sms = FSUBahrmannSMS(host, port)
-            self.sms.setStepTypeStr(1, "1/4")
-            self.motorPos = self.sms.getPosition(self.motorNum)
-            # self.sms.setAcc
-        except:
-            print("no Motor found")
+        # try:
+        #     self.sms = FSUBahrmannSMS(host, port)
+        #     self.sms.setStepTypeStr(1, "1/4")
+        #     self.motorPos = self.sms.getPosition(self.motorNum)
+        #     # self.sms.setAcc
+        # except:
+        #     print("no Motor found in main")
         
         # self.canvas = MplCanvas()
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
-        self.plotLayout = QVBoxLayout(self.plotWidget)  # Assuming plotWidget is the name of the placeholder widget
+        self.plotLayout = QVBoxLayout(self.plotWidget) 
         self.plotLayout.addWidget(self.canvas)
         
         
@@ -174,7 +199,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
        self.numSteps.valueChanged.connect(self.updateParams)
        self.driveBtn.clicked.connect(self.drive_steps)
        self.checkAutoDrive.clicked.connect(self.updateParams)
-       # self.motor_pos_btn.clicked.connect(self.get_motor_position)
+       self.StopBtn.clicked.connect(self.StopMotor)
+       self.motor_pos_btn.clicked.connect(self.update_positionDisplay)
        # self.positionDisplay.
        # self.update_positionDisplay()
     
@@ -242,6 +268,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def close_application(self):    
         self.close()
         self.stopCurrentSpektrometer()
+        try:
+            self.canvas.sms.disconnect()
+        except:
+            print("no motor to close")
         print("FinishedClosing Bye")
         
         if self.appRef is not None:
@@ -263,15 +293,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     #     return self.sms.getPosition(self.motorNum)
     
     def drive_steps(self):
-        global steps_to_drive
-        driveTo = steps_to_drive + self.sms.getPosition(self.motorNum)
-        self.sms.StartOne(self.motorNum, driveTo)
-        self.motorPos = self.motorPos + steps_to_drive
         self.update_positionDisplay()
-        # print(self.get_motor_position())
+        self.canvas.drive_steps(steps_to_drive)
     
     def update_positionDisplay(self):
-        self.positionDisplay.setText(str(self.motorPos))
+        self.positionDisplay.setText(self.canvas.sms.getStateOne(10)[0].counterstr[:-2])
+    
+    def StopMotor(self):
+        self.canvas.StopMotor()
+        self.update_positionDisplay()
     
     """
     Falls die Parameter geändert werden soll das aktualisiert werden
@@ -304,7 +334,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         steps_to_drive = self.numSteps.value()
         doAutoDrive = self.checkAutoDrive.isChecked()
-        print(doAutoDrive)
+        
+        self.update_positionDisplay()
         # print(steps_to_drive)
 
         
