@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>875</width>
+    <height>917</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>831</width>
+      <height>781</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="18" column="2">
+      <widget class="QPushButton" name="driveBtn">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(245, 55, 25);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Drive Steps</string>
+       </property>
+      </widget>
+     </item>
+     <item row="18" column="4">
+      <widget class="QSpinBox" name="numSteps">
+       <property name="minimum">
+        <number>-40000</number>
+       </property>
+       <property name="maximum">
+        <number>40000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="21" column="2">
+      <widget class="QWidget" name="plotWidget" native="true"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="listSpec">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(220, 220, 220);
+color: rgb(0, 0, 0);</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QCheckBox" name="checkAverage">
+       <property name="text">
+        <string>Average over:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Spectrometer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="4">
+      <widget class="QSpinBox" name="SpecUpperBound">
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>1100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QComboBox" name="TriggerMode">
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>trigger1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>trigger2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>trigger3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>trigger4</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="14" column="2">
+      <widget class="QLineEdit" name="lineEdit_file"/>
+     </item>
+     <item row="7" column="4">
+      <widget class="QSpinBox" name="IntTime">
+       <property name="minimum">
+        <number>1000</number>
+       </property>
+       <property name="maximum">
+        <number>1000000</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Integration time</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="2">
+      <widget class="QPushButton" name="btnBackground">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(245, 245, 125);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Save Background</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="4">
+      <widget class="QCheckBox" name="checkSub">
+       <property name="text">
+        <string>Substract Background</string>
+       </property>
+      </widget>
+     </item>
+     <item row="16" column="2">
+      <widget class="QRadioButton" name="checkContSave">
+       <property name="text">
+        <string>Continous Save</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Spectrum Lowerbound</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="4">
+      <widget class="QSpinBox" name="SpecLowerBound">
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>900</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QSpinBox" name="nAverage">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+       <property name="value">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="4">
+      <widget class="QPushButton" name="browseButton">
+       <property name="text">
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="14" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Fileprefix:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Spectrum Upperbound</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>save path</string>
+       </property>
+      </widget>
+     </item>
+     <item row="13" column="2">
+      <widget class="QPushButton" name="btnSaveSpec">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(45, 230, 15);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>Save current Spectra</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="2">
+      <widget class="QLineEdit" name="lineEdit_path"/>
+     </item>
+     <item row="17" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Motor</string>
+       </property>
+      </widget>
+     </item>
+     <item row="17" column="2">
+      <widget class="QComboBox" name="listMotor"/>
+     </item>
+     <item row="19" column="4">
+      <widget class="QPushButton" name="btnExit">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(190, 120, 255);
+color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string>EXIT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="19" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>position</string>
+       </property>
+      </widget>
+     </item>
+     <item row="19" column="2">
+      <widget class="QLineEdit" name="positionDisplay"/>
+     </item>
+     <item row="17" column="4">
+      <widget class="QPushButton" name="motor_pos_btn">
+       <property name="text">
+        <string>motor pos</string>
+       </property>
+      </widget>
+     </item>
+     <item row="18" column="0">
+      <widget class="QCheckBox" name="checkAutoDrive">
+       <property name="text">
+        <string>Auto Drive</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>875</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSpecra_Viewer">
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(71, 70, 72);</string>
+    </property>
+    <property name="title">
+     <string>Specra-Viewer</string>
+    </property>
+   </widget>
+   <addaction name="menuSpecra_Viewer"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
